@@ -45,7 +45,6 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
 
-    runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly 'org.postgresql:postgresql'
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
@@ -55,7 +54,6 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
     testImplementation 'org.testcontainers:junit-jupiter'
-    testImplementation 'org.testcontainers:mysql'
     testImplementation 'org.testcontainers:postgresql'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

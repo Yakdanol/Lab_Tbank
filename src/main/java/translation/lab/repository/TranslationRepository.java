@@ -2,30 +2,48 @@ package translation.lab.repository;
 
 import translation.lab.entity.TranslationEntity;
 import org.springframework.stereotype.Repository;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import java.sql.ResultSet;
+import java.util.List;
 
 @Repository
 public class TranslationRepository {
-    private final DataSource dataSource;
 
-    public TranslationRepository(DataSource dataSource) {
-        this.dataSource = dataSource;
+    private final JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public TranslationRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public void save(TranslationEntity translationEntity) {
         String query = "INSERT INTO translations (ip_address, original_text, translated_text) VALUES (?, ?, ?)";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setString(1, translationEntity.getIpAddress());
-            preparedStatement.setString(2, translationEntity.getOriginalText());
-            preparedStatement.setString(3, translationEntity.getTranslatedText());
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        jdbcTemplate.update(query, translationEntity.getIpAddress(), translationEntity.getOriginalText(), translationEntity.getTranslatedText());
+    }
+
+    public List<TranslationEntity> findAll() {
+        String query = "SELECT * FROM translations";
+        return jdbcTemplate.query(query, new TranslationRowMapper());
+    }
+
+    public TranslationEntity findById(Long id) {
+        String query = "SELECT * FROM translations WHERE id = ?";
+        return jdbcTemplate.queryForObject(query, new TranslationRowMapper(), id);
+    }
+
+    private static class TranslationRowMapper implements RowMapper<TranslationEntity> {
+        @Override
+        public TranslationEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
+            TranslationEntity entity = new TranslationEntity();
+            entity.setId(rs.getLong("id"));
+            entity.setIpAddress(rs.getString("ip_address"));
+            entity.setOriginalText(rs.getString("original_text"));
+            entity.setTranslatedText(rs.getString("translated_text"));
+            return entity;
         }
     }
 }
+
